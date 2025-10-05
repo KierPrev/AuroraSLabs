@@ -409,3 +409,41 @@ body::before{
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; }
 }
+
+.stars-container{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;          /* contenido encima debe tener z>0 si hace falta */
+  overflow: hidden;
+}
+
+/* Estrella base */
+.star{
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: .7;
+  animation: twinkle 2.8s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* Brillo sutil */
+.star::after{
+  content: "";
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255,255,255,.6);
+}
+
+/* Parpadeo */
+@keyframes twinkle{
+  0%,100%{ opacity:.25; transform: scale(.9); }
+  50%    { opacity:.95; transform: scale(1); }
+}
+
+/* Si el usuario pide menos movimiento, mantené estrellas estáticas */
+@media (prefers-reduced-motion: reduce){
+  .star{ animation: none; }
+}
