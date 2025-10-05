@@ -377,19 +377,28 @@ body::before{
 
 .lang-switch{
   position: fixed;
-  top: 14px; right: 14px;
+  top: calc(14px + env(safe-area-inset-top));
+  right: calc(14px + env(safe-area-inset-right));
   z-index: 1000;
-  padding: .5rem .8rem;
+
+  /* ↑ tamaño */
+  padding: var(--lang-pad-y) var(--lang-pad-x);
+  min-width: 44px;           /* target accesible */
+  min-height: 44px;          /* target accesible */
+  font: 600 var(--lang-fs)/1 Inter, system-ui, sans-serif;
+
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.18);
   background: rgba(0,0,0,.35);
-  backdrop-filter: blur(6px);
   color: #eaf2ff;
-  font: 500 14px/1 Inter, system-ui, sans-serif;
+  backdrop-filter: blur(6px);
   cursor: pointer;
 }
 .lang-switch:hover{ background: rgba(0,0,0,.5); }
-
+.lang-switch:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--aurora-amber) 40%, transparent);
+}
 
 /* Cada capítulo no se renderiza hasta entrar en viewport */
 .chapter{
@@ -485,4 +494,38 @@ body::before{
     --nav-pad: .55rem;
   }
   .navigation{ bottom: 10px; }
+}
+@media (pointer: coarse){
+  :root{
+    --lang-fs: 18px;
+    --lang-pad-y: .75rem;
+    --lang-pad-x: 1.1rem;
+  }
+}
+
+
+
+/* 1) Nada de padding extra: ya no es fijo */
+body{ padding-bottom: 0; }
+
+/* 2) Footer en flujo, pero con z-index alto */
+body > .site-credits{
+  position: relative;               /* scrollea con el contenido */
+  z-index: 2147483646;              /* por encima del nav */
+  margin-top: 3rem;                 /* tu margen original */
+  padding: 2rem 1.25rem;
+  text-align: center;
+  font-size: clamp(1.2rem, .95rem + .2vw, 1rem);
+  color: var(--ink-dim, #b9c6e4);
+  background: color-mix(in srgb, var(--bg-1, #0a0f28) 85%, transparent);
+  border-top: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(2px);
+}
+.site-credits a{ color: inherit; text-decoration: underline dotted; }
+
+
+:root{
+  --lang-fs: clamp(15px, 0.9rem + 0.2vw, 18px);
+  --lang-pad-y: .65rem;
+  --lang-pad-x: 1rem;
 }
