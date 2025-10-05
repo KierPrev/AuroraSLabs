@@ -497,9 +497,9 @@ body::before{
 }
 @media (pointer: coarse){
   :root{
-    --lang-fs: 18px;
-    --lang-pad-y: .75rem;
-    --lang-pad-x: 1.1rem;
+    --lang-fs: 24px;
+    --lang-pad-y: .55rem;
+    --lang-pad-x: 1.2rem;
   }
 }
 
