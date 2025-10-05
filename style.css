@@ -1,824 +1,238 @@
-/* Estilos para el Cuento Solar - La Gran Tormenta Solar */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #0a0a2e 0%, #16213e 50%, #0f3460 100%);
-    color: white;
-    overflow-x: hidden;
-    line-height: 1.6;
-}
-
-.chapter {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    position: relative;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.title {
-    font-size: 3rem;
-    text-align: center;
-    margin-bottom: 2rem;
-    background: linear-gradient(45deg, #ff6b6b, #feca57, #48cae4);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: pulse 3s infinite;
-}
-
-.story-text {
-    max-width: 800px;
-    font-size: 1.2rem;
-    text-align: center;
-    margin-bottom: 3rem;
-    z-index: 10;
-    position: relative;
-}
-
-/* Animación del Sol */
-.sun {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #ffeb3b 0%, #ff9800 50%, #ff5722 100%);
-    position: relative;
-    animation: sunRotate 20s linear infinite;
-    box-shadow: 
-        0 0 50px #ffeb3b,
-        0 0 100px #ff9800,
-        0 0 150px #ff5722;
-}
-
-.sun::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    border-radius: 50%;
-    background: radial-gradient(circle, transparent 60%, #ffeb3b 100%);
-    animation: sunFlare 4s ease-in-out infinite;
-}
-
-/* Eyección solar */
-.solar-ejection {
-    width: 300px;
-    height: 100px;
-    background: linear-gradient(90deg, #ff5722, #ff9800, #ffeb3b);
-    border-radius: 50px;
-    position: absolute;
-    opacity: 0;
-    animation: solarEjection 8s ease-out infinite;
-    box-shadow: 0 0 30px #ff5722;
-}
-
-/* Partículas espaciales */
-.space-particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: #ffffff;
-    border-radius: 50%;
-    animation: floatParticle 15s linear infinite;
-}
-
-/* Tierra */
-.earth {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: 
-        radial-gradient(circle at 30% 30%, #4fc3f7, #2196f3),
-        linear-gradient(45deg, #4caf50 25%, #2196f3 25% 50%, #4caf50 50% 75%, #2196f3 75%);
-    position: relative;
-    animation: earthRotate 30s linear infinite;
-}
-
-/* Problemas tecnológicos */
-.tech-problems {
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 2rem 0;
-}
-
-.tech-item {
-    width: 100px;
-    height: 100px;
-    border: 3px solid #ff5722;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    animation: techGlitch 0.5s infinite alternate;
-}
-
-/* Aurora Boreal */
-.aurora {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 400px;
-    background: linear-gradient(
-        0deg,
-        transparent 0%,
-        rgba(0, 255, 127, 0.3) 20%,
-        rgba(127, 255, 212, 0.5) 40%,
-        rgba(138, 43, 226, 0.4) 60%,
-        rgba(255, 20, 147, 0.3) 80%,
-        transparent 100%
-    );
-    animation: auroraWave 6s ease-in-out infinite;
-}
-
-.aurora::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(0, 255, 127, 0.2) 25%,
-        rgba(138, 43, 226, 0.3) 50%,
-        rgba(255, 20, 147, 0.2) 75%,
-        transparent 100%
-    );
-    animation: auroraShimmer 4s ease-in-out infinite reverse;
-}
-
-/* Controles de navegación */
-.navigation {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 1rem;
-    z-index: 100;
-}
-
-.nav-btn {
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    font-size: 1.2rem;
-    min-width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    outline: none;
-    user-select: none;
-}
-
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-}
-
-.nav-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
-}
-
-.nav-btn.active {
-    background: #ff6b6b;
-    border-color: #ff6b6b;
-    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-    transform: scale(1.1);
-}
-
-/* Animaciones */
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-@keyframes sunRotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes sunFlare {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
-}
-
-@keyframes solarEjection {
-    0% { 
-        opacity: 0; 
-        transform: translateX(0) scale(0.5); 
-    }
-    20% { 
-        opacity: 1; 
-        transform: translateX(100px) scale(1); 
-    }
-    80% { 
-        opacity: 0.8; 
-        transform: translateX(500px) scale(0.8); 
-    }
-    100% { 
-        opacity: 0; 
-        transform: translateX(800px) scale(0.3); 
-    }
-}
-
-@keyframes floatParticle {
-    0% {
-        transform: translate(0, 0) rotate(0deg);
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    80% {
-        opacity: 1;
-    }
-    100% {
-        transform: translate(1000px, -200px) rotate(360deg);
-        opacity: 0;
-    }
-}
-
-@keyframes earthRotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes techGlitch {
-    0% { 
-        border-color: #ff5722; 
-        box-shadow: 0 0 10px #ff5722;
-    }
-    100% { 
-        border-color: #ff9800; 
-        box-shadow: 0 0 20px #ff9800;
-    }
-}
-
-@keyframes auroraWave {
-    0%, 100% {
-        transform: skewX(0deg) translateX(0);
-        opacity: 0.6;
-    }
-    33% {
-        transform: skewX(5deg) translateX(50px);
-        opacity: 0.8;
-    }
-    66% {
-        transform: skewX(-3deg) translateX(-30px);
-        opacity: 0.7;
-    }
-}
-
-@keyframes auroraShimmer {
-    0%, 100% {
-        transform: translateX(-100px);
-        opacity: 0.4;
-    }
-    50% {
-        transform: translateX(100px);
-        opacity: 0.8;
-    }
-}
-
-/* Partículas de fondo */
-.star {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: white;
-    border-radius: 50%;
-    animation: twinkle 3s infinite alternate;
-}
-
-@keyframes twinkle {
-    0% { opacity: 0.3; }
-    100% { opacity: 1; }
-}
-
-/* Nuevas ilustraciones específicas del cuento de Lihué */
-
-/* Capítulo 1: Casa y amanecer en La Punta */
-.illustration-container {
-    margin: 2rem 0;
-    position: relative;
-    height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.house-dawn {
-    position: relative;
-    width: 300px;
-    height: 150px;
-}
-
-.house {
-    width: 80px;
-    height: 60px;
-    background: linear-gradient(45deg, #8B4513, #A0522D);
-    position: absolute;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
-    border-radius: 5px;
-}
-
-.house::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -10px;
-    width: 0;
-    height: 0;
-    border-left: 50px solid transparent;
-    border-right: 50px solid transparent;
-    border-bottom: 25px solid #654321;
-}
-
-.house::after {
-    content: '';
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 15px;
-    height: 20px;
-    background: #FFD700;
-    border-radius: 2px;
-    box-shadow: 35px 0 0 #FFD700;
-}
-
-.sierras {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 60px;
-    background: linear-gradient(to right, 
-        #2C5F2D 0%, #2C5F2D 20%, 
-        #4A7C59 20%, #4A7C59 40%,
-        #2C5F2D 40%, #2C5F2D 60%,
-        #4A7C59 60%, #4A7C59 80%,
-        #2C5F2D 80%, #2C5F2D 100%);
-    clip-path: polygon(0 100%, 15% 70%, 25% 80%, 40% 60%, 60% 75%, 75% 55%, 90% 70%, 100% 50%, 100% 100%);
-}
-
-.character {
-    position: absolute;
-    right: 20px;
-    bottom: 25px;
-    font-size: 2rem;
-    animation: lookAround 4s ease-in-out infinite;
-}
-
-.early-aurora {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 150px;
-    background: linear-gradient(
-        180deg,
-        rgba(138, 43, 226, 0.3) 0%,
-        rgba(0, 255, 127, 0.4) 30%,
-        transparent 60%
-    );
-    animation: earlyAuroraShimmer 8s ease-in-out infinite;
-}
-
-/* Capítulo 2: Interior del Sol */
-.sun-interior {
-    position: relative;
-    margin: 2rem 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.plasma-currents {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle,
-        rgba(255, 235, 59, 0.8) 0%,
-        rgba(255, 152, 0, 0.6) 30%,
-        rgba(255, 87, 34, 0.4) 60%,
-        transparent 80%
-    );
-    animation: plasmaSwirl 6s linear infinite;
-}
-
-.magnetic-field-lines {
-    position: absolute;
-    width: 250px;
-    height: 250px;
-    border: 3px solid rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    border-style: dashed;
-    animation: magneticPulse 3s ease-in-out infinite;
-}
-
-.magnetic-field-lines::before,
-.magnetic-field-lines::after {
-    content: '';
-    position: absolute;
-    width: 200px;
-    height: 200px;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    border-style: dotted;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.magnetic-field-lines::after {
-    width: 150px;
-    height: 150px;
-    animation-delay: 1s;
-}
-
-/* Capítulo 3: Viaje espacial */
-.space-journey {
-    position: relative;
-    margin: 2rem 0;
-    height: 200px;
-    overflow: hidden;
-}
-
-.solar-wind {
-    position: absolute;
-    left: -20px;
-    top: 50%;
-    width: 300px;
-    height: 40px;
-    background: linear-gradient(90deg, 
-        rgba(255, 235, 59, 0.8) 0%,
-        rgba(255, 152, 0, 0.6) 50%,
-        transparent 100%
-    );
-    border-radius: 20px;
-    animation: solarWindFlow 8s ease-out infinite;
-}
-
-.venus {
-    position: absolute;
-    top: 30%;
-    left: 40%;
-    font-size: 2rem;
-    color: #FFC649;
-    text-shadow: 0 0 10px #FFC649;
-    animation: planetGlow 4s ease-in-out infinite;
-}
-
-.earth-distant {
-    position: absolute;
-    top: 60%;
-    right: 20%;
-    font-size: 1.5rem;
-    animation: earthPulse 6s ease-in-out infinite;
-}
-
-/* Capítulo 4: Encuentro con la Tierra */
-.earth-encounter {
-    position: relative;
-    margin: 2rem 0;
-    height: 250px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.magnetosphere {
-    position: absolute;
-    width: 200px;
-    height: 200px;
-    border: 3px solid rgba(0, 191, 255, 0.6);
-    border-radius: 50%;
-    animation: magnetosphereShield 4s ease-in-out infinite;
-}
-
-.magnetosphere::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    width: 240px;
-    height: 240px;
-    border: 2px solid rgba(0, 191, 255, 0.3);
-    border-radius: 50%;
-    animation: magnetosphereShield 4s ease-in-out infinite reverse;
-}
-
-.satellite-damaged {
-    position: absolute;
-    top: 10%;
-    right: 20%;
-    font-size: 2rem;
-    animation: satelliteGlitch 0.5s infinite;
-}
-
-.tech-item.glitching {
-    animation: techGlitch 0.3s infinite alternate, colorFlicker 1s infinite;
-}
-
-/* Capítulo 5: Transformación de la aurora */
-.aurora-transformation {
-    position: relative;
-    margin: 2rem 0;
-    height: 300px;
-    overflow: hidden;
-}
-
-.color-layer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    opacity: 0;
-    animation: colorTransition 12s ease-in-out infinite;
-}
-
-.color-layer.red {
-    background: linear-gradient(0deg, rgba(255, 0, 0, 0.6) 0%, transparent 100%);
-    animation-delay: 0s;
-}
-
-.color-layer.green {
-    background: linear-gradient(0deg, rgba(0, 255, 0, 0.6) 0%, transparent 100%);
-    animation-delay: 3s;
-}
-
-.color-layer.blue {
-    background: linear-gradient(0deg, rgba(0, 127, 255, 0.6) 0%, transparent 100%);
-    animation-delay: 6s;
-}
-
-.color-layer.violet {
-    background: linear-gradient(0deg, rgba(138, 43, 226, 0.6) 0%, transparent 100%);
-    animation-delay: 9s;
-}
-
-/* Escena local con fauna */
-.local-scene {
-    position: relative;
-    margin: 2rem 0;
-    height: 200px;
-}
-
-.sierras-silhouette {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    background: linear-gradient(to right,
-        #1a1a2e 0%, #16213e 25%, #0f3460 50%, #16213e 75%, #1a1a2e 100%);
-    clip-path: polygon(0 100%, 10% 60%, 25% 70%, 40% 50%, 60% 65%, 75% 45%, 90% 60%, 100% 40%, 100% 100%);
-}
-
-.swallows {
-    position: absolute;
-    top: 30%;
-    left: 20%;
-    animation: swallowFlight 6s ease-in-out infinite;
-}
-
-.guanacos {
-    position: absolute;
-    bottom: 80px;
-    right: 30%;
-    animation: animalUnease 8s ease-in-out infinite;
-}
-
-.aurora-final {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 120px;
-    background: linear-gradient(
-        180deg,
-        rgba(0, 255, 127, 0.4) 0%,
-        rgba(138, 43, 226, 0.3) 50%,
-        rgba(255, 20, 147, 0.2) 80%,
-        transparent 100%
-    );
-    animation: finalAuroraFade 10s ease-in-out infinite;
-}
-
-/* Animaciones específicas */
-@keyframes lookAround {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px) rotate(-5deg); }
-    75% { transform: translateX(5px) rotate(5deg); }
-}
-
-@keyframes earlyAuroraShimmer {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.7; }
-}
-
-@keyframes plasmaSwirl {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes magneticPulse {
-    0%, 100% { 
-        opacity: 0.6; 
-        transform: scale(1);
-    }
-    50% { 
-        opacity: 1; 
-        transform: scale(1.1);
-    }
-}
-
-@keyframes solarWindFlow {
-    0% {
-        left: -300px;
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    80% {
-        opacity: 1;
-    }
-    100% {
-        left: 100%;
-        opacity: 0;
-    }
-}
-
-@keyframes planetGlow {
-    0%, 100% { 
-        text-shadow: 0 0 10px #FFC649;
-        transform: scale(1);
-    }
-    50% { 
-        text-shadow: 0 0 20px #FFC649, 0 0 30px #FFC649;
-        transform: scale(1.1);
-    }
-}
-
-@keyframes earthPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-}
-
-@keyframes magnetosphereShield {
-    0%, 100% {
-        border-color: rgba(0, 191, 255, 0.6);
-        transform: scale(1);
-    }
-    50% {
-        border-color: rgba(0, 191, 255, 1);
-        transform: scale(1.05);
-    }
-}
-
-@keyframes satelliteGlitch {
-    0%, 100% { 
-        transform: rotate(0deg);
-        filter: brightness(1);
-    }
-    25% { 
-        transform: rotate(-5deg);
-        filter: brightness(1.5) hue-rotate(90deg);
-    }
-    75% { 
-        transform: rotate(5deg);
-        filter: brightness(0.5) hue-rotate(180deg);
-    }
-}
-
-@keyframes colorFlicker {
-    0%, 100% { filter: hue-rotate(0deg); }
-    33% { filter: hue-rotate(120deg); }
-    66% { filter: hue-rotate(240deg); }
-}
-
-@keyframes colorTransition {
-    0%, 25% { opacity: 0.8; }
-    30%, 100% { opacity: 0; }
-}
-
-@keyframes swallowFlight {
-    0%, 100% { 
-        transform: translateX(0) translateY(0);
-    }
-    25% { 
-        transform: translateX(50px) translateY(-20px) rotate(15deg);
-    }
-    50% { 
-        transform: translateX(20px) translateY(10px) rotate(-10deg);
-    }
-    75% { 
-        transform: translateX(-30px) translateY(-10px) rotate(5deg);
-    }
-}
-
-@keyframes animalUnease {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px) rotate(2deg); }
-}
-
-@keyframes finalAuroraFade {
-    0% { opacity: 0.8; }
-    50% { opacity: 0.4; }
-    100% { opacity: 0.1; }
-}
-
-@keyframes electromagneticPulse {
-    0% {
-        left: -50px;
-        opacity: 0;
-        transform: scaleX(0.5);
-    }
-    30% {
-        opacity: 1;
-        transform: scaleX(1);
-    }
-    70% {
-        opacity: 1;
-    }
-    100% {
-        left: calc(100% + 50px);
-        opacity: 0;
-        transform: scaleX(0.5);
-    }
-}
-
-@keyframes sparkle {
-    0%, 100% {
-        opacity: 0;
-        transform: scale(0.5);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.2);
-        box-shadow: 0 0 12px #00ff7f, 0 0 24px #8a2be2;
-    }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .title {
-        font-size: 2rem;
-    }
-    .story-text {
-        font-size: 1rem;
-        padding: 0 1rem;
-    }
-    .sun {
-        width: 150px;
-        height: 150px;
-    }
-    .earth {
-        width: 100px;
-        height: 100px;
-    }
-    .house-dawn {
-        width: 250px;
-        height: 120px;
-    }
-    .illustration-container {
-        height: 150px;
-    }
-    .space-journey {
-        height: 150px;
-    }
-    .aurora-transformation {
-        height: 200px;
-    }
+/* ——— Cuento Solar · Aurora theme ——— */
+
+/* 1) Design tokens */
+:root{
+  /* Color system */
+  --bg-0: #060918;
+  --bg-1: #0a0f28;
+  --bg-2: #112043;
+  --ink: #eaf2ff;
+  --ink-dim: #b9c6e4;
+
+  --aurora-green: #60f5b5;
+  --aurora-cyan:  #48cae4;
+  --aurora-violet:#b389ff;
+  --aurora-amber: #f7c07a;
+
+  /* Effects */
+  --ring: 0 0 0 3px color-mix(in srgb, var(--aurora-amber) 40%, transparent);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.35);
+  --radius: 14px;
+
+  /* Type & rhythm */
+  --step--1: clamp(.9rem, 0.85rem + .3vw, 1rem);
+  --step-0:  clamp(1.05rem, 1rem + .6vw, 1.2rem);
+  --step-1:  clamp(1.35rem, 1.1rem + 1.2vw, 1.6rem);
+  --step-2:  clamp(2rem, 1.7rem + 2vw, 2.6rem);
+  --step-3:  clamp(2.6rem, 2.2rem + 3vw, 3.4rem);
+
+  --lh-tight: 1.15;
+  --lh-copy: 1.75;
+
+  --space-1: .5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-6: 3rem;
+}
+
+/* 2) Reset & base */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body{
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #0f346070 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 50%, var(--bg-2) 100%);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: var(--lh-copy);
+  overflow-x: hidden;
+}
+
+/* 3) Aurora veil (brand identity) */
+body::before{
+  content: "";
+  position: fixed;
+  inset: -20% -10%;
+  background:
+    conic-gradient(from 200deg at 30% 20%, color-mix(in srgb, var(--aurora-violet) 30%, transparent) 0 20%,
+                   color-mix(in srgb, var(--aurora-green) 35%, transparent) 20% 45%,
+                   color-mix(in srgb, var(--aurora-cyan) 30%, transparent) 45% 70%,
+                   transparent 70% 100%);
+  filter: blur(60px) saturate(120%);
+  opacity: .35;
+  z-index: 0;
+  animation: auroraDrift 28s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* 4) Layout */
+.chapter{
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding-block: var(--space-6);
+  padding-inline: var(--space-3);
+  position: relative;
+  z-index: 1; /* above the veil */
+}
+
+.container{
+  max-width: 72ch; /* readable measure */
+  width: 100%;
+}
+
+/* 5) Title */
+.title{
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--step-3);
+  line-height: var(--lh-tight);
+  text-align: center;
+  margin-bottom: var(--space-4);
+  letter-spacing: .5px;
+  background: linear-gradient(90deg, var(--aurora-amber), var(--aurora-green), var(--aurora-cyan), var(--aurora-violet));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: titleShimmer 14s ease-in-out infinite;
+  text-wrap: balance;
+}
+
+/* 6) Story copy */
+.story-text{
+  font-size: var(--step-1);
+  color: var(--ink);
+  opacity: .95;
+  text-rendering: optimizeLegibility;
+  text-wrap: pretty;
+}
+
+.story-text p + p{
+  margin-top: var(--space-3);
+}
+
+.story-text em,
+.story-text strong{
+  color: color-mix(in srgb, var(--ink) 85%, white);
+}
+
+/* Optional drop cap for first paragraph of a chapter */
+.story-text p:first-child::first-letter{
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  float: left;
+  font-size: 3.1rem;
+  line-height: .9;
+  padding-right: .35rem;
+  margin-top: .2rem;
+  color: var(--aurora-amber);
+}
+
+/* 7) Images */
+.story-image{
+  width: 80%;
+  height: auto;
+  display: block;
+  margin: var(--space-4) auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  outline: 1px solid color-mix(in srgb, var(--aurora-cyan) 20%, transparent);
+}
+
+/* 8) Navigation */
+.navigation{
+  position: fixed;
+  inset-inline: 0;
+  bottom: 20px;
+  display: flex;
+  gap: .8rem;
+  justify-content: center;
+  z-index: 100;
+}
+
+.nav-btn{
+  min-width: 3.2rem;
+  height: 3.2rem;
+  padding-inline: 1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: color-mix(in srgb, var(--bg-2) 70%, #ffffff10);
+  color: var(--ink);
+  font-size: var(--step--1);
+  letter-spacing: .2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: transform .15s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  backdrop-filter: blur(10px) saturate(120%);
+}
+
+.nav-btn:hover{
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--bg-2) 50%, #ffffff18);
+  box-shadow: 0 6px 24px #0006, 0 0 0 1px color-mix(in srgb, var(--aurora-green) 25%, transparent);
+}
+
+.nav-btn:focus-visible{
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.nav-btn[aria-current="page"],
+.nav-btn.active{
+  background: linear-gradient(90deg, var(--aurora-green), var(--aurora-cyan));
+  border-color: transparent;
+  color: #04121a;
+  font-weight: 600;
+}
+
+/* 9) Stars (single element, many shadows for perf) */
+.starry-sky{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.starry-sky::before{
+  content:"";
+  position:absolute; inset:0;
+  background: radial-gradient(1px 1px at 10% 20%, #ffffffb7 50%, transparent 51%),
+              radial-gradient(1px 1px at 80% 30%, #ffffffb0 50%, transparent 51%),
+              radial-gradient(1px 1px at 30% 70%, #ffffffa6 50%, transparent 51%),
+              radial-gradient(1px 1px at 60% 80%, #ffffff9c 50%, transparent 51%);
+  opacity:.45;
+  animation: twinkle 6s ease-in-out infinite alternate;
+}
+
+/* 10) Responsive */
+@media (max-width: 768px){
+  .title{ font-size: var(--step-2); margin-bottom: var(--space-3); }
+  .story-text{ font-size: var(--step-0); }
+  .navigation{ bottom: 14px; gap: .5rem; }
+}
+
+/* 11) Motion preferences */
+@media (prefers-reduced-motion: reduce){
+  html { scroll-behavior: auto; }
+  .title, body::before, .starry-sky::before { animation: none !important; }
+}
+
+/* 12) Keyframes */
+@keyframes titleShimmer{
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes auroraDrift{
+  0%   { transform: translateY(-2%) rotate(0.5deg) scale(1.02); opacity:.30; }
+  100% { transform: translateY(2%)  rotate(-0.5deg) scale(1.04); opacity:.40; }
+}
+
+@keyframes twinkle{
+  0%{ opacity:.3; filter: drop-shadow(0 0 0 transparent);}
+  100%{ opacity:1; filter: drop-shadow(0 0 6px #cde8ff75);}
 }
