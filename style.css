@@ -524,6 +524,26 @@ body > .site-credits{
 .site-credits a{ color: inherit; text-decoration: underline dotted; }
 
 
+/* Evita que el nav fijo cubra el final en pantallas chicas */
+@media (max-width: 768px){
+  body{
+    padding-bottom: calc(var(--nav-size) + 28px); /* crea “piso” bajo */
+  }
+  /* Si llegás al footer con anchors/scrollIntoView, que frene antes del nav */
+  .site-credits{
+    scroll-margin-bottom: calc(var(--nav-size) + 28px);
+  }
+}
+
+/* Asegurá que el footer pinte por arriba si se superponen capas */
+body > .site-credits{
+  position: relative;
+  z-index: 1001;           /* > .navigation (100) */
+  transform: translateZ(0);/* capa propia: arregla móviles con backdrop-filter */
+}
+
+
+
 :root{
   --lang-fs: clamp(15px, 0.9rem + 0.2vw, 18px);
   --lang-pad-y: .65rem;
