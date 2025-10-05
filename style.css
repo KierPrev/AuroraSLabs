@@ -389,3 +389,23 @@ body::before{
   cursor: pointer;
 }
 .lang-switch:hover{ background: rgba(0,0,0,.5); }
+
+
+/* Cada capítulo no se renderiza hasta entrar en viewport */
+.chapter{
+  content-visibility: auto;
+  /* Altura estimada para reservar espacio y evitar saltos de layout */
+  contain-intrinsic-size: 1000px 1600px; /* ajustá si cada cap. es más alto */
+}
+
+/* Imágenes grandes: reservar tamaño y evitar repaints costosos */
+.story-image{
+  max-width: min(100%, 960px);
+  height: auto;
+  /* Si tenés ratio común, ayuda al UA a reservar: */
+}
+
+/* Animaciones más suaves y baratas cuando el usuario lo pide */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
