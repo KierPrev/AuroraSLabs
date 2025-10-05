@@ -11,6 +11,7 @@
 <body>
     <!-- Estrellas de fondo -->
     <div class="stars-container"></div>
+    <div class="reading-progress" id="reading-progress"></div>
 
     
     <!-- Capítulo 1: El Despertar de Lihué -->
@@ -128,6 +129,20 @@
   <div class="story-text">
     Nombre was changing. They became an aurora—a shimmering curtain, waving far beyond the poles, above the Sierras of San Luis.
   </div>
+  
+  <details class="science-accordion">
+  <summary>🔬 The science behind it: why is the aurora green?</summary>
+<div class="accordion-body">
+  <p>
+    Auroras happen when tiny particles from the solar wind bump into atoms of 
+    oxygen and nitrogen high up in Earth’s atmosphere.  
+    Oxygen glows green when it’s about 100–300 kilometers above the ground, 
+    while nitrogen adds blue and purple shades to the light show.
+  </p>
+</div>
+
+</details>
+
 </div>
 
 <!-- Capítulo 7: Cuando el Sol Pintó Nuestro Cielo -->
@@ -169,6 +184,13 @@
     <script>
         let currentChapter = 1;
         const totalChapters = 6;
+
+        window.addEventListener("scroll", () => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - window.innerHeight;
+        const scrolled = (scrollTop / height) * 100;
+        document.getElementById("reading-progress").style.width = scrolled + "%";
+      });
 
         // Generar estrellas de fondo
         function createStars() {
