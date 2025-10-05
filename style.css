@@ -227,7 +227,7 @@ body::before{
 
 /* 7) Images */
 .story-image{
-  width: 80%;
+  width: 50%;
   height: auto;
   display: block;
   margin: var(--space-4) auto;
@@ -371,5 +371,21 @@ body::before{
 
 /* Tighter spacing between subtitle and title on small screens */
 @media (max-width: 768px){
+  .story-image{  width: 100%;}
   .subtitle{ margin-bottom: var(--space-1); }
 }
+
+.lang-switch{
+  position: fixed;
+  top: 14px; right: 14px;
+  z-index: 1000;
+  padding: .5rem .8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+  color: #eaf2ff;
+  font: 500 14px/1 Inter, system-ui, sans-serif;
+  cursor: pointer;
+}
+.lang-switch:hover{ background: rgba(0,0,0,.5); }

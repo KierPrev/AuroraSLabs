@@ -19,171 +19,624 @@
   <img src="./images/nasaspaceapps.jpg" alt="NASA Space Apps Challenge logo">
 </div>
 
+<button id="langToggle" class="lang-switch" aria-label="Switch language">ES</button>
 
-<p class="subtitle" role="doc-subtitle">
+<p class="subtitle" role="doc-subtitle" data-i18n-html="subtitle">
   From San Luis, the <span class="subtitle-brand">AuroraSLabs</span> team brings you this story.
 </p>
     
     <!-- Capítulo 1: El Despertar de Lihué -->
 <div class="chapter active" id="chapter1">
-  <h1 class="title">Curtains of light over the Sierras</h1>
+  <h1 class="title" data-i18n="ch1.title">Curtains of light over the Sierras</h1>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch1.p1">
     Lihué woke before dawn in La Punta. The house felt strange: the microwave clock was blank, and the computer wouldn’t turn on. “Power outage?” they wondered.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch1.p2">
     They walked to the window and pulled back the curtain. Outside, the Sierras de San Luis looked the same as always—except for something impossible. Above the hills, the sky held green curtains with touches of violet drifting slowly, as if someone were waving a theater curtain made of light.
   </div>
 
 <img src="./images/1.png" alt="Green aurora over the Sierras" class="story-image">
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch1.p3">
     “What is that?” Lihué whispered. They didn’t know this story had begun hours earlier—far from Earth, inside the Sun.
   </div>
+
+
+<div class="aurora-card" role="group" aria-labelledby="auroraLabel">
+  <div class="aurora-header">
+    <label id="auroraLabel" for="alt" data-i18n-html="aurora.alt.label">
+      Altitude (km):
+      <output id="altOut" aria-live="polite">200</output>
+    </label>
+    <div class="aurora-badge" id="colorName" data-i18n="aurora.badge.default">Red (O 630 nm)</div>
+  </div>
+
+  <input id="alt" type="range" min="80" max="500" value="200" step="5"
+         aria-valuemin="80" aria-valuemax="500" aria-valuenow="200" />
+
+  <div id="auroraDemo" class="aurora" aria-hidden="true"></div>
+
+  <details class="aurora-notes">
+    <summary data-i18n="aurora.details.summary">🔬 What are you seeing?</summary>
+    <p data-i18n="aurora.details.text">
+      Simplified mix of emissions: red (O 630 nm) &gt;~200 km, green (O 557.7 nm) ~100–200 km (peak ~115 km),
+      blue/violet (N₂⁺ 427.8 nm) ~90–120 km, with violet-pink below ~100 km.
+    </p>
+  </details>
+</div>
+
+<script>
+const $alt  = document.getElementById('alt');
+const $out  = document.getElementById('altOut');
+const $demo = document.getElementById('auroraDemo');
+const $name = document.getElementById('colorName');
+
+// ---------- Math helpers ----------
+function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+function smooth(a, b, x){
+  const t = clamp((x - a) / (b - a), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+// ---------- Scale settings ----------
+const H_MIN = 80;
+const H_MAX = 500;
+const LOG_MIN = Math.log(H_MIN);
+const LOG_MAX = Math.log(H_MAX);
+
+// GAMMA > 1 compresses the high end (less movement from 200→500)
+// Set GAMMA = 1 for pure logarithmic spacing (equal distance for equal ratios)
+const GAMMA = 2.0;
+
+// Convert slider's linear position (0..1) → altitude (km) with biased log scale
+function posToAlt(p){
+  const s = Math.pow(clamp(p, 0, 1), GAMMA);             // bias the position
+  const lnH = LOG_MIN + s * (LOG_MAX - LOG_MIN);         // log interpolation
+  return Math.exp(lnH);
+}
+// Convenience: slider value → normalized position
+function valToPos(val, min, max){
+  return (val - min) / (max - min);
+}
+
+// ---------- Physics visualization ----------
+function weightsFor(h){
+  const bluePeak   = smooth(90, 110, h) * (1 - smooth(110, 130, h));
+  const purpleLow  = (1 - smooth(95, 105, h)) * 0.7;
+  const greenRise  = smooth(95, 120, h);
+  const greenFall  = 1 - smooth(180, 210, h);
+  const green      = clamp(greenRise * greenFall, 0, 1);
+  const red        = smooth(190, 230, h) * (0.7 + 0.3 * smooth(380, 450, h));
+  const blue       = clamp(bluePeak + purpleLow, 0, 1);
+  const sum        = red + green + blue + 1e-6;
+  return { r: red/sum, g: green/sum, b: blue/sum };
+}
+
+function labelFor(h, w){
+  const max = Math.max(w.r, w.g, w.b);
+  if(max === w.r) return "Red (O 630 nm, >~200 km)";
+  if(max === w.g) return "Green (O 557.7 nm, ~100–200 km)";
+  return (h < 100) ? "Violet/Pink low (<~100 km)"
+                   : "Blue/Violet (N₂⁺ 427.8 nm, ~90–120 km)";
+}
+
+function setBadge(text){
+  $name.textContent = text;
+  $name.title = text; // full tooltip if ellipsized
+}
+
+// ---------- RAF-throttled render ----------
+let target;               // current altitude (km)
+let ticking = false;
+
+function render(){
+  ticking = false;
+  const h = target;
+  const w = weightsFor(h);
+
+  // Sub-linear to soften dominance
+  const wr = Math.pow(w.r, 0.85);
+  const wg = Math.pow(w.g, 0.85);
+  const wb = Math.pow(w.b, 0.85);
+
+  // Push CSS variables (cheap) instead of rebuilding background
+  $demo.style.setProperty('--r-in',  (0.55 * wr + 0.05).toFixed(4));
+  $demo.style.setProperty('--r-out', (0.28 * wr + 0.02).toFixed(4));
+  $demo.style.setProperty('--g-in',  (0.60 * wg + 0.05).toFixed(4));
+  $demo.style.setProperty('--g-out', (0.30 * wg + 0.02).toFixed(4));
+  $demo.style.setProperty('--b-in',  (0.50 * wb + 0.05).toFixed(4));
+  $demo.style.setProperty('--b-out', (0.25 * wb + 0.02).toFixed(4));
+
+  setBadge(labelFor(h, w));
+  $out.value = Math.round(h);
+  $alt.setAttribute('aria-valuenow', String(Math.round(h)));
+  $alt.setAttribute('aria-valuetext', `${Math.round(h)} km (log scale)`);
+}
+
+function requestRender(){
+  if (!ticking){
+    ticking = true;
+    requestAnimationFrame(render);
+  }
+}
+
+// Use the slider's linear position (from its min/max) → biased log altitude
+$alt.addEventListener('input', e => {
+  const p = valToPos(+e.target.value, +e.target.min, +e.target.max); // 0..1
+  target = posToAlt(p);
+  requestRender();
+});
+
+// Initial paint from current thumb position
+(function init(){
+  const p0 = valToPos(+$alt.value, +$alt.min, +$alt.max);
+  target = posToAlt(p0);
+  requestRender();
+})();
+</script>
+
+
+<style>
+.aurora-card{
+  --bg:#0b1022; --fg:#e9f3ff;
+  max-width:720px;margin:1rem auto;padding:1rem 1.1rem 1.25rem;
+  border-radius:16px;background:var(--bg);color:var(--fg);
+  box-shadow:0 8px 24px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.06);
+  /* Texto un poco más grande y legible */
+  font-size: clamp(16px, 0.95rem + 0.25vw, 18px);
+  line-height: 1.65;
+}
+
+/* Fija el ancho de la columna de la “badge” para que no se mueva */
+.aurora-header{
+  display: grid;
+  --badge-col: 30ch;
+  grid-template-columns: 1fr var(--badge-col);
+  align-items: center;
+  gap: .75rem;
+}
+.aurora-header label{ font-size: 1.05em; }
+
+.aurora-badge{
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95em;
+  padding: .45rem .8rem;
+}
+
+/* En pantallas chicas, apilar */
+@media (max-width: 480px){
+  .aurora-header{ grid-template-columns: 1fr; }
+  .aurora-badge{
+    width: auto;
+    justify-self: start;
+  }
+}
+
+/* ---------- Slider “finger-friendly” ---------- */
+#alt{
+  width:100%;
+  margin:.8rem 0 1.1rem;
+  -webkit-appearance:none;
+  appearance:none;
+  background: transparent;
+  /* Más área táctil sin deformar el track */
+  padding: 12px 0;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Track */
+#alt::-webkit-slider-runnable-track{
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.14);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+#alt::-moz-range-track{
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.14);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* Thumb */
+#alt::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width: 28px; height: 28px;           /* más grande */
+  border-radius: 50%;
+  background: #e9f3ff;
+  border: 2px solid rgba(255,255,255,.25);
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  /* centrar en el track: -(thumb - track)/2 = -(28-12)/2 = -8px */
+  margin-top: -8px;
+  cursor: pointer;
+}
+#alt::-moz-range-thumb{
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #e9f3ff;
+  border: 2px solid rgba(255,255,255,.25);
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  cursor: pointer;
+}
+
+/* Hover/active (opcional) */
+#alt:hover::-webkit-slider-thumb,
+#alt:active::-webkit-slider-thumb{ box-shadow: 0 3px 10px rgba(0,0,0,.45); }
+#alt:hover::-moz-range-thumb,
+#alt:active::-moz-range-thumb{ box-shadow: 0 3px 10px rgba(0,0,0,.45); }
+
+/* Enfoque accesible */
+#alt:focus-visible{
+  outline: none;
+}
+#alt:focus-visible::-webkit-slider-runnable-track{
+  box-shadow: inset 0 0 0 2px rgba(120,200,255,.45);
+}
+#alt:focus-visible::-moz-range-track{
+  box-shadow: inset 0 0 0 2px rgba(120,200,255,.45);
+}
+
+/* Boost automático en dispositivos táctiles */
+@media (pointer: coarse){
+  #alt::-webkit-slider-runnable-track,
+  #alt::-moz-range-track{ height: 14px; }
+  #alt::-webkit-slider-thumb{
+    width: 34px; height: 34px;         /* más grande en touch */
+    margin-top: -10px;                  /* -(34-14)/2 */
+  }
+  #alt::-moz-range-thumb{
+    width: 34px; height: 34px;
+  }
+}
+
+/* ---------- Aurora canvas ---------- */
+#auroraDemo{
+  --r-in:.15;  --r-out:.05;
+  --g-in:.20;  --g-out:.08;
+  --b-in:.12;  --b-out:.05;
+
+  height:210px;border-radius:14px; outline:1px solid rgba(255,255,255,.06);
+  background:
+    radial-gradient(140% 120% at 50% 80%, rgba(150,130,255,var(--b-in)) 0%, rgba(150,130,255,var(--b-out)) 42%, transparent 78%),
+    radial-gradient(160% 130% at 50% 88%, rgba(120,255,180,var(--g-in)) 0%, rgba(120,255,180,var(--g-out)) 50%, transparent 84%),
+    radial-gradient(180% 140% at 50% 68%, rgba(255,90,90,var(--r-in)) 0%, rgba(255,90,90,var(--r-out)) 56%, transparent 88%),
+    radial-gradient(120% 110% at 50% 92%, rgba(255,255,255,.06) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(10,16,40,0) 0%, rgba(10,16,40,.85) 100%);
+  background-color:#0a1030;
+  filter: blur(0.7px) saturate(1.03) brightness(1.01);
+  transform: translateZ(0);
+  will-change: opacity;
+}
+
+.aurora-notes{margin-top:.6rem}
+.aurora-notes summary{cursor:pointer;opacity:.9}
+.aurora-notes p{margin:.4rem 0 0;opacity:.9}
+
+</style>
+
+
+
+
 </div>
 
 <!-- Capítulo 2: Dentro del Sol -->
 <div class="chapter" id="chapter2">
-  <h1 class="title">Inside the Sun</h1>
+  <h1 class="title" data-i18n="ch2.title">Inside the Sun</h1>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch2.p1">
     Deep inside the Sun, in the heart of a dark sunspot, tides of plasma heaved and tangled. One current burned brighter—restless, tugging hard at the magnetic threads.
   </div>
 
-  <div class="story-text">
+  <img src="./images/suninterior.png" alt="Green aurora over the Sierras" class="story-image">
+
+  <div class="story-text" data-i18n="ch2.p2">
     “Careful,” the other tides murmured. “You’ll cause trouble.” “I want to see what’s beyond,” said the bright current. The threads tightened, trembled—then—snap!
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch2.p3">
     Light and magnetized plasma exploded outward, racing into space. In that instant the current became something new: a vast, swirling cloud—a coronal mass ejection.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch2.p4">
     “There goes ‘Nombre’ again,” the others cried, “always making trouble!” But “Nombre” didn’t turn back. Newborn and blazing, they were already leaving the Sun, eager for whatever lay ahead.
   </div>
 
-
-
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch2.p5">
     Back on the surface, the Sun’s radiant family stirred—the children born from its burning heart. The Solar Flares, fierce and proud, burst out as flashes of light and heat. The Solar Wind, calm and patient, whispered through space every day. And then there was Nombre—heavier, slower, filled with magnetic fire.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch2.p6">
     Together, they formed a solar storm, the greatest the solar system had seen in ages.
   </div>
 </div>
 
-<!-- Capítulo 4: Cruzando los Mundos Interiores -->
+<!-- Capítulo 3: Cruzando los Mundos Interiores -->
 <div class="chapter" id="chapter3">
-  <h1 class="title">Crossing the Inner Worlds</h1>
+  <h1 class="title" data-i18n="ch3.title">Crossing the Inner Worlds</h1>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch3.p1">
     The Sun slowly grew smaller behind. Around “Nombre,” there was silence—no sound, no warmth, no home. Space felt vast and empty.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch3.p2">
     Soon, a calm voice reached them: the Solar Wind, flowing beside them. “You’re new here,” said the Solar Wind. “Where are you headed?” “I don’t know,” answered “Nombre.” “I just want to see what’s out there.” “Then you’ll have to learn patience,” said the Wind. “Each of us moves differently—I’ll reach Venus in three days.”
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch3.p3">
     “Nombre” continued forward, glowing and curious. They passed Mercury, too bright and near the fire to welcome anyone. Then Venus, wrapped in silver clouds that hid its surface from sight. The Solar Wind slowed and drifted away. “Good luck, little spark,” it whispered.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch3.p4">
     For the first time, “Nombre” felt alone. The cold of space was growing deeper. The warmth of the Sun no longer reached.
   </div>
 </div>
 
-<!-- Capítulo 5: El Escudo Azul -->
+<!-- Capítulo 4: El Escudo Azul -->
 <div class="chapter" id="chapter4">
-  <h1 class="title">The Blue Shield</h1>
+  <h1 class="title" data-i18n="ch4.title">The Blue Shield</h1>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch4.p1">
     Still, “Nombre” pressed onward—a streak of golden fire moving toward a distant blue world. After days of traveling, “Nombre” noticed a force pushing back. Something invisible was slowing them, bending their path.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch4.p2">
     They saw what it was: a small, shining world suspended like a pale blue mote in the dark—Earth. “What is that place?” “Nombre” wondered. “Why does it resist me?”
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch4.p3">
     They felt both fear and fascination. The invisible force was the Earth’s magnetic field, a giant shield that curved around the blue planet, deflecting most of the Sun’s fury. “Who are you?” Nombre asked. A deep, silent voice answered: “I am Earth’s shield. You cannot pass, but you may dance upon my edges.”
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch4.p4">
     Curiosity was stronger. “Nombre” leaned in. “Just a little closer,” they whispered, and brushed the edge of Earth’s shield. A tremor spread around the planet. Satellites shuddered as waves of magnetic energy washed over them. Signals flickered and hissed.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch4.p5">
     “Nombre” swept through a metal machine orbiting high above the clouds—a satellite. Its screen blinked, and its circuits went silent. “I didn’t mean to hurt it,” Nombre murmured, startled. “Why does everything here break so easily?” They didn’t yet understand that they carried the Sun’s strength.
   </div>
 </div>
 
-<!-- Capítulo 6: Cuando el Cielo Baila -->
+<!-- Capítulo 5: Cuando el Cielo Baila -->
 <div class="chapter" id="chapter5">
-  <h1 class="title">When the Sky Dances</h1>
+  <h1 class="title" data-i18n="ch5.title">When the Sky Dances</h1>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch5.p1">
     Below, long, bright lines—the power grids—shivered as invisible currents raced through them. In some places, lights went out all at once. Airplanes circled, unable to speak with the towers below. Even ships in faraway seas drifted, their compasses spinning wildly. Radios crackled and gave only static.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch5.p2">
     The sky shimmered, charged with invisible electricity. Nombre felt confusion—what was happening to this world? “Did I mean to cause so much trouble?” Nombre wondered, seeing all the flickers and shadows spreading below.
   </div>
 
-  <div class="story-text">
+  <img src="./images/city.png" alt="Green aurora over the Sierras" class="story-image">
+
+  <div class="story-text" data-i18n="ch5.p3">
     Then something new began. As “Nombre’s” energy touched the upper edge of Earth’s atmosphere—the ionosphere—tiny atoms of oxygen and nitrogen started to dance, spinning and swaying in invisible waves. Their dance released colors—oxygen glowed red and green, while nitrogen shimmered in blue and violet.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch5.p4">
     Nombre was changing. They became an aurora—a shimmering curtain, waving far beyond the poles, above the Sierras of San Luis.
   </div>
-  
+
+  <img src="./images/nombrefading.png" alt="Green aurora over the Sierras" class="story-image">
+
   <details class="science-accordion">
-  <summary>🔬 The science behind: Why the aurora has colors?</summary>
-<div class="accordion-body">
-  <p>
-    Auroras happen when tiny particles from the solar wind bump into atoms of 
-oxygen and nitrogen high up in Earth’s atmosphere.  
-Oxygen glows green when it’s about 100–300 kilometers above the ground, 
-while nitrogen adds blue and purple shades to the light show.  
-At higher altitudes, oxygen can also produce a rare red glow.  
-The exact colors depend not only on the type of molecule, but also on how dense 
-the atmosphere is at that height — fewer molecules mean particles travel deeper 
-before colliding, changing the mix of colors we see.
-
-  </p>
+    <summary data-i18n="ch5.science.summary">🔬 The science behind: Why the aurora has colors?</summary>
+    <div class="accordion-body">
+      <p data-i18n="ch5.science.text">
+        Auroras happen when tiny particles from the solar wind bump into atoms of 
+        oxygen and nitrogen high up in Earth’s atmosphere.  
+        Oxygen glows green when it’s about 100–300 kilometers above the ground, 
+        while nitrogen adds blue and purple shades to the light show.  
+        At higher altitudes, oxygen can also produce a rare red glow.  
+        The exact colors depend not only on the type of molecule, but also on how dense 
+        the atmosphere is at that height — fewer molecules mean particles travel deeper 
+        before colliding, changing the mix of colors we see.
+      </p>
+    </div>
+  </details>
 </div>
 
-</details>
-
-</div>
-
-<!-- Capítulo 7: Cuando el Sol Pintó Nuestro Cielo -->
+<!-- Capítulo 6: Cuando el Sol Pintó Nuestro Cielo -->
 <div class="chapter" id="chapter6">
-  <h1 class="title">When the Sun Painted Our Sky</h1>
+  <h1 class="title" data-i18n="ch6.title">When the Sun Painted Our Sky</h1>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch6.p1">
     In La Punta, Lihué still watched from the window, eyes wide. The lights above the mountains shifted from emerald green to deep blue, from violet to threads of warm gold. Far away, swallows flew in zigzags, as though unsure which way was north. They landed together on the old algarrobo tree, ruffling their wings.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch6.p2">
     On the battery radio, a reporter’s voice crackled: “Whales are turning off course in the southern seas tonight. Fishermen say the ocean feels strange.” Lihué crept outside, toes curling in the cold grass, looking up with awe. “What’s happening to the sky?” they whispered.
   </div>
 
-  <div class="story-text">
+  <img src="./images/lihuefinal.png" alt="Green aurora over the Sierras" class="story-image">
+
+  <div class="story-text" data-i18n="ch6.p3">
     High above, “Nombre” was fading. Their energy spread thinner and thinner, until they were only colors dissolving into the sky. For a moment, “Nombre” felt peace. “So this is what it means to touch a world,” they thought. They disappeared softly into the atmosphere, leaving behind the light of a thousand colors.
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch6.p4">
     Lihué watched until the last shimmer vanished. They ran inside and opened their sketchbook. Green waves over the hills, violet ribbons in the dawn—they drew everything before it faded from memory. Under the picture, they wrote a question: Can the Sun paint our sky?
   </div>
 
-  <div class="story-text">
+  <div class="story-text" data-i18n="ch6.p5">
     Standing by the window again, Lihué smiled. They felt they had seen something secret—the planet itself seemed alive, like a giant compass that the Sun had gently touched. That night, La Punta kept the memory of a different sky—one that beat to the rhythm of the Sun.
   </div>
 </div>
+
+<script>
+(function(){
+  const LS_KEY = 'i18n_lang';
+  const fallback = 'en';
+  const supported = ['en','es'];
+
+  const translations = {
+    en: {
+  "subtitle": "From San Luis, the <span class=\"subtitle-brand\">AuroraSLabs</span> team brings you this story.",
+
+  "ch1.title": "Curtains of light over the Sierras",
+  "ch1.p1": "Lihué woke before dawn in La Punta. The house felt strange: the microwave clock was blank, and the computer wouldn’t turn on. “Power outage?” they wondered.",
+  "ch1.p2": "They walked to the window and pulled back the curtain. Outside, the Sierras de San Luis looked the same as always—except for something impossible. Above the hills, the sky held green curtains with touches of violet drifting slowly, as if someone were waving a theater curtain made of light.",
+  "ch1.p3": "“What is that?” Lihué whispered. They didn’t know this story had begun hours earlier—far from Earth, inside the Sun.",
+
+  "aurora.alt.label": "Altitude (km): ",
+  "aurora.badge.default": "Red (O 630 nm)",
+  "aurora.details.summary": "🔬 What are you seeing?",
+  "aurora.details.text": "Simplified mix of emissions: red (O 630 nm) ≳200 km, green (O 557.7 nm) ~100–200 km (peak ~115 km), blue/violet (N₂⁺ 427.8 nm) ~90–120 km, with violet-pink below ~100 km.",
+
+  "ch2.title": "Inside the Sun",
+  "ch2.p1": "Deep inside the Sun, in the heart of a dark sunspot, tides of plasma heaved and tangled. One current burned brighter—restless, tugging hard at the magnetic threads.",
+  "ch2.p2": "“Careful,” the other tides murmured. “You’ll cause trouble.” “I want to see what’s beyond,” said the bright current. The threads tightened, trembled—then—snap!",
+  "ch2.p3": "Light and magnetized plasma exploded outward, racing into space. In that instant the current became something new: a vast, swirling cloud—a coronal mass ejection.",
+  "ch2.p4": "“There goes ‘Nombre’ again,” the others cried, “always making trouble!” But “Nombre” didn’t turn back. Newborn and blazing, they were already leaving the Sun, eager for whatever lay ahead.",
+  "ch2.p5": "Back on the surface, the Sun’s radiant family stirred—the children born from its burning heart. The Solar Flares, fierce and proud, burst out as flashes of light and heat. The Solar Wind, calm and patient, whispered through space every day. And then there was Nombre—heavier, slower, filled with magnetic fire.",
+  "ch2.p6": "Together, they formed a solar storm, the greatest the solar system had seen in ages.",
+
+  "ch3.title": "Crossing the Inner Worlds",
+  "ch3.p1": "The Sun slowly grew smaller behind. Around “Nombre,” there was silence—no sound, no warmth, no home. Space felt vast and empty.",
+  "ch3.p2": "Soon, a calm voice reached them: the Solar Wind, flowing beside them. “You’re new here,” said the Solar Wind. “Where are you headed?” “I don’t know,” answered “Nombre.” “I just want to see what’s out there.” “Then you’ll have to learn patience,” said the Wind. “Each of us moves differently—I’ll reach Venus in three days.”",
+  "ch3.p3": "“Nombre” continued forward, glowing and curious. They passed Mercury, too bright and near the fire to welcome anyone. Then Venus, wrapped in silver clouds that hid its surface from sight. The Solar Wind slowed and drifted away. “Good luck, little spark,” it whispered.",
+  "ch3.p4": "For the first time, “Nombre” felt alone. The cold of space was growing deeper. The warmth of the Sun no longer reached.",
+
+  "ch4.title": "The Blue Shield",
+  "ch4.p1": "Still, “Nombre” pressed onward—a streak of golden fire moving toward a distant blue world. After days of traveling, “Nombre” noticed a force pushing back. Something invisible was slowing them, bending their path.",
+  "ch4.p2": "They saw what it was: a small, shining world suspended like a pale blue mote in the dark—Earth. “What is that place?” “Nombre” wondered. “Why does it resist me?”",
+  "ch4.p3": "They felt both fear and fascination. The invisible force was the Earth’s magnetic field, a giant shield that curved around the blue planet, deflecting most of the Sun’s fury. “Who are you?” Nombre asked. A deep, silent voice answered: “I am Earth’s shield. You cannot pass, but you may dance upon my edges.”",
+  "ch4.p4": "Curiosity was stronger. “Nombre” leaned in. “Just a little closer,” they whispered, and brushed the edge of Earth’s shield. A tremor spread around the planet. Satellites shuddered as waves of magnetic energy washed over them. Signals flickered and hissed.",
+  "ch4.p5": "“Nombre” swept through a metal machine orbiting high above the clouds—a satellite. Its screen blinked, and its circuits went silent. “I didn’t mean to hurt it,” Nombre murmured, startled. “Why does everything here break so easily?” They didn’t yet understand that they carried the Sun’s strength.",
+
+  "ch5.title": "When the Sky Dances",
+  "ch5.p1": "Below, long, bright lines—the power grids—shivered as invisible currents raced through them. In some places, lights went out all at once. Airplanes circled, unable to speak with the towers below. Even ships in faraway seas drifted, their compasses spinning wildly. Radios crackled and gave only static.",
+  "ch5.p2": "The sky shimmered, charged with invisible electricity. Nombre felt confusion—what was happening to this world? “Did I mean to cause so much trouble?” Nombre wondered, seeing all the flickers and shadows spreading below.",
+  "ch5.p3": "Then something new began. As “Nombre’s” energy touched the upper edge of Earth’s atmosphere—the ionosphere—tiny atoms of oxygen and nitrogen started to dance, spinning and swaying in invisible waves. Their dance released colors—oxygen glowed red and green, while nitrogen shimmered in blue and violet.",
+  "ch5.p4": "Nombre was changing. They became an aurora—a shimmering curtain, waving far beyond the poles, above the Sierras of San Luis.",
+
+  "ch5.science.summary": "🔬 The science behind: Why the aurora has colors?",
+  "ch5.science.text": "Auroras happen when tiny particles from the solar wind bump into atoms of oxygen and nitrogen high up in Earth’s atmosphere. Oxygen glows green when it’s about 100–300 kilometers above the ground, while nitrogen adds blue and purple shades to the light show. At higher altitudes, oxygen can also produce a rare red glow. The exact colors depend not only on the type of molecule, but also on how dense the atmosphere is at that height — fewer molecules mean particles travel deeper before colliding, changing the mix of colors we see.",
+
+  "ch6.title": "When the Sun Painted Our Sky",
+  "ch6.p1": "In La Punta, Lihué still watched from the window, eyes wide. The lights above the mountains shifted from emerald green to deep blue, from violet to threads of warm gold. Far away, swallows flew in zigzags, as though unsure which way was north. They landed together on the old algarrobo tree, ruffling their wings.",
+  "ch6.p2": "On the battery radio, a reporter’s voice crackled: “Whales are turning off course in the southern seas tonight. Fishermen say the ocean feels strange.” Lihué crept outside, toes curling in the cold grass, looking up with awe. “What’s happening to the sky?” they whispered.",
+  "ch6.p3": "High above, “Nombre” was fading. Their energy spread thinner and thinner, until they were only colors dissolving into the sky. For a moment, “Nombre” felt peace. “So this is what it means to touch a world,” they thought. They disappeared softly into the atmosphere, leaving behind the light of a thousand colors.",
+  "ch6.p4": "Lihué watched until the last shimmer vanished. They ran inside and opened their sketchbook. Green waves over the hills, violet ribbons in the dawn—they drew everything before it faded from memory. Under the picture, they wrote a question: Can the Sun paint our sky?",
+  "ch6.p5": "Standing by the window again, Lihué smiled. They felt they had seen something secret—the planet itself seemed alive, like a giant compass that the Sun had gently touched. That night, La Punta kept the memory of a different sky—one that beat to the rhythm of the Sun."
+}
+,
+
+    es: {
+  "subtitle": "Desde San Luis, el equipo <span class=\"subtitle-brand\">AuroraSLabs</span> te trae esta historia.",
+
+  "ch1.title": "Cortinas de luz sobre las Sierras",
+  "ch1.p1": "Lihué despertó antes del amanecer en La Punta. La casa se sentía extraña: el reloj del microondas estaba en blanco y la computadora no encendía. “¿Se cortó la luz?”, pensaron.",
+  "ch1.p2": "Se acercaron a la ventana y corrieron la cortina. Afuera, las Sierras de San Luis se veían como siempre—salvo por algo imposible. Sobre los cerros, el cielo mostraba cortinas verdes con toques de violeta que se deslizaban lentamente, como si alguien agitara un telón de luz.",
+  "ch1.p3": "“¿Qué es eso?”, susurró Lihué. No sabían que esta historia había empezado horas antes—lejos de la Tierra, dentro del Sol.",
+
+  "aurora.alt.label": "Altitud (km): ",
+  "aurora.badge.default": "Rojo (O 630 nm)",
+  "aurora.details.summary": "🔬 ¿Qué estás viendo?",
+  "aurora.details.text": "Mezcla simplificada de emisiones: rojo (O 630 nm) ≳200 km, verde (O 557,7 nm) ~100–200 km (pico ~115 km), azul/violeta (N₂⁺ 427,8 nm) ~90–120 km, con violeta-rosado por debajo de ~100 km.",
+
+  "ch2.title": "Dentro del Sol",
+  "ch2.p1": "En lo profundo del Sol, en el corazón de una mancha oscura, mareas de plasma se agitaban y se enredaban. Una corriente brillaba más—inquieta, tironeando fuerte de los hilos magnéticos.",
+  "ch2.p2": "“Con cuidado,” murmuraron las otras mareas. “Vas a causar problemas.” “Quiero ver qué hay más allá,” dijo la corriente brillante. Los hilos se tensaron, temblaron—y entonces—¡zaz!",
+  "ch2.p3": "La luz y el plasma magnetizado estallaron hacia afuera, corriendo por el espacio. En ese instante la corriente se volvió algo nuevo: una vasta nube arremolinada—una eyección de masa coronaria.",
+  "ch2.p4": "“Ahí va ‘Nombre’ otra vez,” gritaban los demás, “¡siempre causando problemas!” Pero “Nombre” no dio la vuelta. Recién nacida y encendida, ya se alejaba del Sol, ansiosa por lo que viniera.",
+  "ch2.p5": "En la superficie, la familia radiante del Sol se agitó—las hijas nacidas de su corazón ardiente. Las llamaradas solares, fieras y orgullosas, irrumpían como destellos de luz y calor. El viento solar, calmo y paciente, susurraba por el espacio cada día. Y allí estaba “Nombre”: más pesada, más lenta, llena de fuego magnético.",
+  "ch2.p6": "Juntas, formaron una tormenta solar, la más grande que el sistema solar había visto en edades.",
+
+  "ch3.title": "Cruzando los mundos interiores",
+  "ch3.p1": "El Sol se fue volviendo más pequeño detrás. Alrededor de “Nombre” había silencio—sin sonido, sin calor, sin hogar. El espacio se sentía inmenso y vacío.",
+  "ch3.p2": "Pronto, una voz serena le alcanzó: el viento solar, fluyendo a su lado. “Eres nueva aquí,” dijo el viento solar. “¿A dónde te diriges?” “No lo sé,” respondió “Nombre”. “Solo quiero ver qué hay afuera.” “Entonces tendrás que aprender paciencia,” dijo el Viento. “Cada quien se mueve distinto—yo llegaré a Venus en tres días.”",
+  "ch3.p3": "“Nombre” siguió adelante, luminosa y curiosa. Pasó junto a Mercurio, demasiado brillante y cerca del fuego como para recibir a alguien. Luego Venus, envuelto en nubes plateadas que ocultaban su superficie. El viento solar desaceleró y se alejó. “Buena suerte, pequeña chispa,” susurró.",
+  "ch3.p4": "Por primera vez, “Nombre” se sintió sola. El frío del espacio se hacía más profundo. El calor del Sol ya no alcanzaba.",
+
+  "ch4.title": "El escudo azul",
+  "ch4.p1": "Aun así, “Nombre” avanzó—una estela de fuego dorado moviéndose hacia un mundo azul lejano. Tras varios días de viaje, “Nombre” notó una fuerza que empujaba en contra. Algo invisible la estaba frenando y curvando su trayectoria.",
+  "ch4.p2": "Entonces lo vio: un pequeño mundo brillante, suspendido como una mota azul pálida en la oscuridad—la Tierra. “¿Qué es este lugar?” se preguntó “Nombre”. “¿Por qué se resiste a mí?”",
+  "ch4.p3": "Sintió miedo y fascinación a la vez. La fuerza invisible era el campo magnético terrestre, un escudo gigante que se curvaba alrededor del planeta azul, desviando la mayor parte del furor del Sol. “¿Quién eres?” preguntó “Nombre”. Una voz profunda y silenciosa respondió: “Soy el escudo de la Tierra. No puedes pasar, pero puedes danzar en mis bordes.”",
+  "ch4.p4": "Pudo más la curiosidad. “Nombre” se inclinó. “Solo un poco más cerca,” susurró, y rozó el borde del escudo de la Tierra. Un temblor se expandió alrededor del planeta. Los satélites se estremecieron cuando oleadas de energía magnética los atravesaron. Las señales titilaron y chisporrotearon.",
+  "ch4.p5": "“Nombre” atravesó una máquina metálica que orbitaba muy por encima de las nubes—un satélite. Su pantalla parpadeó y sus circuitos quedaron en silencio. “No quise lastimarlo,” murmuró “Nombre”, sorprendida. “¿Por qué aquí todo se rompe con tanta facilidad?” Aún no entendía que llevaba la fuerza del Sol.",
+
+  "ch5.title": "Cuando el cielo baila",
+  "ch5.p1": "Abajo, líneas largas y brillantes—las redes eléctricas—se estremecieron mientras corrientes invisibles las recorrían. En algunos lugares, las luces se apagaron de golpe. Los aviones dieron vueltas, incapaces de hablar con las torres de control. Incluso barcos en mares lejanos derivaron, con sus brújulas girando sin rumbo. Las radios crepitaron y dejaron solo estática.",
+  "ch5.p2": "El cielo centelleaba, cargado de electricidad invisible. “Nombre” sintió confusión—¿qué estaba pasando en este mundo? “¿De verdad quise causar tantos problemas?”, pensó al ver los destellos y sombras extendiéndose abajo.",
+  "ch5.p3": "Entonces comenzó algo nuevo. Cuando la energía de “Nombre” tocó el borde superior de la atmósfera—la ionósfera—pequeños átomos de oxígeno y nitrógeno empezaron a bailar, girando y oscilando en ondas invisibles. Su danza liberó colores—el oxígeno brilló en rojo y verde, mientras que el nitrógeno resplandeció en azules y violetas.",
+  "ch5.p4": "“Nombre” estaba cambiando. Se volvió una aurora—una cortina ondulante que ondeaba mucho más allá de los polos, sobre las Sierras de San Luis.",
+
+  "ch5.science.summary": "🔬 La ciencia detrás: ¿por qué la aurora tiene colores?",
+  "ch5.science.text": "Las auroras aparecen cuando diminutas partículas del viento solar chocan con átomos de oxígeno y nitrógeno en lo alto de la atmósfera terrestre. El oxígeno brilla en verde alrededor de 100–300 km de altura (y puede producir un rojo poco común a mayores altitudes), mientras que el nitrógeno aporta tonos azules y violetas al espectáculo. Los colores exactos dependen no solo del tipo de molécula, sino también de cuán densa es la atmósfera a esa altura: con menos moléculas, las partículas viajan más profundo antes de colisionar, cambiando la mezcla de colores que vemos.",
+
+  "ch6.title": "Cuando el Sol pintó nuestro cielo",
+  "ch6.p1": "En La Punta, Lihué seguía mirando por la ventana, con los ojos muy abiertos. Las luces sobre las montañas pasaban del verde esmeralda al azul profundo, del violeta a hilos de oro tibio. A lo lejos, unas golondrinas volaban en zigzag, como si no supieran bien hacia dónde apuntaba el norte. Se posaron juntas en el viejo algarrobo, sacudiendo sus alas.",
+  "ch6.p2": "En la radio a pilas, una voz crujía: “Esta noche, algunas ballenas están desviando su rumbo en los mares del sur. Los pescadores dicen que el océano se siente extraño.” Lihué salió descalza, con los dedos encogiéndose en el pasto frío, y miró hacia arriba, con asombro. “¿Qué le está pasando al cielo?”, susurró.",
+  "ch6.p3": "Muy arriba, “Nombre” se iba deshaciendo. Su energía se extendía cada vez más fina, hasta ser solo colores disolviéndose en el cielo. Por un momento, “Nombre” sintió paz. “Así se siente tocar un mundo,” pensó. Desapareció suavemente en la atmósfera, dejando atrás la luz de mil colores.",
+  "ch6.p4": "Lihué miró hasta que el último destello se apagó. Corrió hacia adentro y abrió su cuaderno. Olas verdes sobre los cerros, cintas violetas en el alba—dibujó todo antes de que se desvaneciera de la memoria. Debajo del dibujo, escribió una pregunta: ¿Puede el Sol pintar nuestro cielo?",
+  "ch6.p5": "De nuevo junto a la ventana, Lihué sonrió. Sintió que había visto un secreto—el planeta parecía vivo, como una brújula gigante que el Sol había tocado con suavidad. Aquella madrugada, La Punta guardó la memoria de un cielo distinto—uno que latía al compás del Sol."
+}
+
+  };
+
+  // --- Helpers ---
+  const $ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const setLangAttr = (lang) => document.documentElement.setAttribute('lang', lang);
+
+  function applyI18n(lang){
+    const dict = translations[lang] || translations[fallback];
+
+    $('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key in dict) el.textContent = dict[key];
+    });
+
+    // Soporte para HTML embebido
+    $('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html');
+      if (key in dict) el.innerHTML = dict[key];
+    });
+
+    setLangAttr(lang);
+    // Botón muestra el destino al que cambiará (ES si estás en EN, y viceversa)
+    const next = (lang === 'en') ? 'ES' : 'EN';
+    const toggle = document.getElementById('langToggle');
+    if (toggle){
+      toggle.textContent = next;
+      toggle.setAttribute('aria-label', next === 'ES' ? 'Cambiar a español' : 'Switch to English');
+    }
+  }
+
+  function currentLang(){
+    const saved = localStorage.getItem(LS_KEY);
+    if (supported.includes(saved)) return saved;
+    return fallback; // default = en
+  }
+
+  function switchLang(){
+    const now = currentLang();
+    const next = (now === 'en') ? 'es' : 'en';
+    localStorage.setItem(LS_KEY, next);
+    applyI18n(next);
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    const lang = currentLang();
+    applyI18n(lang);
+
+    const btn = document.getElementById('langToggle');
+    if (btn) btn.addEventListener('click', switchLang);
+  });
+})();
+</script>
+
    
 
     <!-- Navegación -->
