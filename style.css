@@ -68,10 +68,11 @@ body{
   margin: 1.5rem 0;
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--aurora-cyan) 15%, transparent), color-mix(in srgb, var(--aurora-cyan) 8%, transparent));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--aurora-cyan) 25%, transparent), color-mix(in srgb, var(--aurora-cyan) 8%, transparent));
   overflow: clip;
   color: #eaf2ff;
   box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: all 0.4s ease-out;
 }
 
 .science-accordion > summary {
@@ -90,7 +91,7 @@ body{
   position: absolute;
   right: 1rem;
   top: 0.7rem;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
   font-size: 1.1rem;
   color: #48cae4;
   margin-left: 1rem;
@@ -110,6 +111,33 @@ max-width: 60ch;
   line-height: 1.6;
   color: #cfe0ff;
   border-top: 1px solid rgba(255,255,255,0.1);
+  animation: accordionOpen 0.5s ease-out;
+}
+
+.science-accordion:not([open]) .accordion-body {
+  animation: accordionClose 0.4s ease-in;
+}
+
+@keyframes accordionOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes accordionClose {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 .science-accordion p {
@@ -302,4 +330,46 @@ body::before{
 @keyframes twinkle{
   0%{ opacity:.3; filter: drop-shadow(0 0 0 transparent);}
   100%{ opacity:1; filter: drop-shadow(0 0 6px #cde8ff75);}
+}
+
+/* Top centered circle badge */
+.top-center-badge {
+  text-align: center;
+  margin-top: 16px; /* spacing from top */
+}
+
+.top-center-badge img {
+  height: 256px;      /* size of the circle */
+  width: 256px;       /* keep it square for circle */
+  border-radius: 50%;
+  object-fit: cover; /* crops/fits inside circle */
+  display: inline-block;
+  border: 3px solid white;   /* optional border */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35); /* optional shadow */
+}
+
+
+
+/* Chapter subtitle */
+.subtitle{
+  padding-top: 30px;
+  margin: 0 0 var(--space-3);
+  font-size: var(--step-1);
+  line-height: var(--lh-tight);
+  text-align: center;
+  color: #fff;            /* white, as requested */
+  opacity: .92;           /* a touch softer against the dark bg */
+  letter-spacing: .3px;
+  text-wrap: balance;
+}
+
+.subtitle-brand{
+  font-weight: 700;
+  /* subtle glow to make the team name pop */
+  text-shadow: 0 0 12px rgba(96,245,181,.25);
+}
+
+/* Tighter spacing between subtitle and title on small screens */
+@media (max-width: 768px){
+  .subtitle{ margin-bottom: var(--space-1); }
 }
