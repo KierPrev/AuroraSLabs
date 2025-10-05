@@ -424,7 +424,7 @@ body::before{
   width: 2px; height: 2px;
   background: #fff;
   border-radius: 50%;
-  opacity: .7;
+  opacity: .5;
   animation: twinkle 2.8s ease-in-out infinite;
   will-change: opacity, transform;
 }
@@ -434,7 +434,7 @@ body::before{
   content: "";
   position: absolute; inset: -4px;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(255,255,255,.6);
+  box-shadow: 0 0 8px rgba(255,255,255,.4);
 }
 
 /* Parpadeo */
@@ -446,4 +446,43 @@ body::before{
 /* Si el usuario pide menos movimiento, mantené estrellas estáticas */
 @media (prefers-reduced-motion: reduce){
   .star{ animation: none; }
+}
+
+
+/* Tokens para navegación */
+:root{
+  --nav-size: 4.2rem;     /* desktop ≈ 67px */
+  --nav-font: var(--step--1);
+  --nav-gap: .8rem;
+  --nav-pad: 1rem;
+}
+
+.navigation{ gap: var(--nav-gap); }
+.nav-btn{
+  min-width: var(--nav-size);
+  height: var(--nav-size);
+  padding-inline: var(--nav-pad);
+  font-size: var(--nav-font);
+}
+
+/* Compactar en mobile */
+@media (max-width: 768px){
+  :root{
+    --nav-size: 3.2rem;  /* ≈ 51px */
+    --nav-font: 1rem;
+    --nav-gap: .5rem;
+    --nav-pad: .7rem;
+  }
+  .navigation{ bottom: 14px; }
+}
+
+/* Muy chico (teléfonos angostos) */
+@media (max-width: 420px){
+  :root{
+    --nav-size: 2.75rem; /* ≈ 44px, still touch-friendly */
+    --nav-font: .95rem;
+    --nav-gap: .4rem;
+    --nav-pad: .55rem;
+  }
+  .navigation{ bottom: 10px; }
 }
