@@ -1,7 +1,7 @@
 /* ——— Cuento Solar · Aurora theme ——— */
 
 /* 1) Design tokens */
-:root{
+:root {
   /* Color system */
   --bg-0: #060918;
   --bg-1: #0a0f28;
@@ -10,21 +10,21 @@
   --ink-dim: #b9c6e4;
 
   --aurora-green: #60f5b5;
-  --aurora-cyan:  #48cae4;
-  --aurora-violet:#b389ff;
+  --aurora-cyan: #48cae4;
+  --aurora-violet: #b389ff;
   --aurora-amber: #f7c07a;
 
   /* Effects */
   --ring: 0 0 0 3px color-mix(in srgb, var(--aurora-amber) 40%, transparent);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,.35);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, .35);
   --radius: 14px;
 
   /* Type & rhythm */
   --step--1: clamp(.9rem, 0.85rem + .3vw, 1rem);
-  --step-0:  clamp(1.05rem, 1rem + .6vw, 1.2rem);
-  --step-1:  clamp(1.35rem, 1.1rem + 1.2vw, 1.6rem);
-  --step-2:  clamp(2rem, 1.7rem + 2vw, 2.6rem);
-  --step-3:  clamp(2.6rem, 2.2rem + 3vw, 3.4rem);
+  --step-0: clamp(1.05rem, 1rem + .6vw, 1.2rem);
+  --step-1: clamp(1.35rem, 1.1rem + 1.2vw, 1.6rem);
+  --step-2: clamp(2rem, 1.7rem + 2vw, 2.6rem);
+  --step-3: clamp(2.6rem, 2.2rem + 3vw, 3.4rem);
 
   --lh-tight: 1.15;
   --lh-copy: 1.75;
@@ -37,9 +37,17 @@
 }
 
 /* 2) Reset & base */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body{
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   font-family: 'Space Grotesk', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
   background:
     radial-gradient(1200px 600px at 50% -10%, #0f346070 0%, transparent 60%),
@@ -51,6 +59,18 @@ body{
   overflow-x: hidden;
 }
 
+/* Solo el primer bloque del capítulo */
+.chapter .story-text:first-of-type::first-letter {
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  float: left;
+  font-size: 3.1rem;
+  line-height: .9;
+  padding-right: .35rem;
+  margin-top: .2rem;
+  color: var(--aurora-amber);
+}
+
+
 .reading-progress {
   position: fixed;
   top: 0;
@@ -58,7 +78,7 @@ body{
   height: 8px;
   width: 0%;
   background: linear-gradient(90deg, #f7c07a, #60f5b5, #48cae4, #b389ff);
-  box-shadow: 0 0 6px rgba(255,255,255,.4);
+  box-shadow: 0 0 6px rgba(255, 255, 255, .4);
   z-index: 9999;
   transition: width 0.15s ease-out;
 }
@@ -66,16 +86,16 @@ body{
 /* Acordeones: "La ciencia detrás" */
 .science-accordion {
   margin: 1.5rem 0;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--aurora-cyan) 25%, transparent), color-mix(in srgb, var(--aurora-cyan) 8%, transparent));
   overflow: clip;
   color: #eaf2ff;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   transition: all 0.4s ease-out;
 }
 
-.science-accordion > summary {
+.science-accordion>summary {
   cursor: pointer;
   padding: 0.75rem 1rem;
   font-weight: 600;
@@ -84,9 +104,12 @@ body{
   position: relative;
   transition: background 0.3s ease;
 }
-.science-accordion > summary::-webkit-details-marker { display: none; }
 
-.science-accordion > summary::after {
+.science-accordion>summary::-webkit-details-marker {
+  display: none;
+}
+
+.science-accordion>summary::after {
   content: "﹀";
   position: absolute;
   right: 1rem;
@@ -96,21 +119,29 @@ body{
   color: #48cae4;
   margin-left: 1rem;
 }
-.science-accordion[open] > summary::after {
+
+.science-accordion[open]>summary::after {
   transform: rotate(180deg);
 }
 
-.science-accordion[open] > summary {
-  background: rgba(255,255,255,0.07);
+.science-accordion[open]>summary {
+  background: rgba(255, 255, 255, 0.07);
 }
 
+.science-accordion>summary:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-radius: 10px;
+}
+
+
 .accordion-body {
-max-width: 60ch;
+  max-width: 60ch;
   padding: 0.75rem 1rem 1rem;
   font-size: 1.5rem;
   line-height: 1.6;
   color: #cfe0ff;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   animation: accordionOpen 0.5s ease-out;
 }
 
@@ -122,7 +153,8 @@ max-width: 60ch;
   from {
     opacity: 0;
     transform: translateY(-8px);
-}
+  }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -134,6 +166,7 @@ max-width: 60ch;
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     opacity: 0;
     transform: translateY(-8px);
@@ -146,15 +179,15 @@ max-width: 60ch;
 
 
 /* 3) Aurora veil (brand identity) */
-body::before{
+body::before {
   content: "";
   position: fixed;
   inset: -20% -10%;
   background:
     conic-gradient(from 200deg at 30% 20%, color-mix(in srgb, var(--aurora-violet) 30%, transparent) 0 20%,
-                   color-mix(in srgb, var(--aurora-green) 35%, transparent) 20% 45%,
-                   color-mix(in srgb, var(--aurora-cyan) 30%, transparent) 45% 70%,
-                   transparent 70% 100%);
+      color-mix(in srgb, var(--aurora-green) 35%, transparent) 20% 45%,
+      color-mix(in srgb, var(--aurora-cyan) 30%, transparent) 45% 70%,
+      transparent 70% 100%);
   filter: blur(60px) saturate(120%);
   opacity: .35;
   z-index: 0;
@@ -163,23 +196,25 @@ body::before{
 }
 
 /* 4) Layout */
-.chapter{
+.chapter {
   min-height: 100svh;
   display: grid;
   place-items: center;
   padding-block: var(--space-6);
   padding-inline: var(--space-3);
   position: relative;
-  z-index: 1; /* above the veil */
+  z-index: 1;
+  /* above the veil */
 }
 
-.container{
-  max-width: 72ch; /* readable measure */
+.container {
+  max-width: 72ch;
+  /* readable measure */
   width: 100%;
 }
 
 /* 5) Title */
-.title{
+.title {
   font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   font-size: var(--step-3);
   line-height: var(--lh-tight);
@@ -196,26 +231,27 @@ body::before{
 }
 
 /* 6) Story copy */
-.story-text{
+.story-text {
   max-width: 62ch;
   font-size: var(--step-1);
   color: var(--ink);
   opacity: .95;
   text-rendering: optimizeLegibility;
   text-wrap: pretty;
+
 }
 
-.story-text p + p{
+.story-text p+p {
   margin-top: var(--space-3);
 }
 
 .story-text em,
-.story-text strong{
+.story-text strong {
   color: color-mix(in srgb, var(--ink) 85%, white);
 }
 
 /* Optional drop cap for first paragraph of a chapter */
-.story-text p:first-child::first-letter{
+.story-text p:first-child::first-letter {
   font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   float: left;
   font-size: 3.1rem;
@@ -226,8 +262,8 @@ body::before{
 }
 
 /* 7) Images */
-.story-image{
-  width: 50%;
+.story-image {
+  width: 60%;
   height: auto;
   display: block;
   margin: var(--space-4) auto;
@@ -237,7 +273,7 @@ body::before{
 }
 
 /* 8) Navigation */
-.navigation{
+.navigation {
   position: fixed;
   inset-inline: 0;
   bottom: 20px;
@@ -247,7 +283,7 @@ body::before{
   z-index: 100;
 }
 
-.nav-btn{
+.nav-btn {
   min-width: 4.2rem;
   height: 4.2rem;
   padding-inline: 1rem;
@@ -266,19 +302,19 @@ body::before{
   backdrop-filter: blur(10px) saturate(120%);
 }
 
-.nav-btn:hover{
+.nav-btn:hover {
   transform: translateY(-1px);
   background: color-mix(in srgb, var(--bg-2) 50%, #ffffff18);
   box-shadow: 0 6px 24px #0006, 0 0 0 1px color-mix(in srgb, var(--aurora-green) 25%, transparent);
 }
 
-.nav-btn:focus-visible{
+.nav-btn:focus-visible {
   outline: none;
   box-shadow: var(--ring);
 }
 
 .nav-btn[aria-current="page"],
-.nav-btn.active{
+.nav-btn.active {
   background: linear-gradient(90deg, var(--aurora-green), var(--aurora-cyan));
   border-color: transparent;
   color: #04121a;
@@ -286,96 +322,149 @@ body::before{
 }
 
 /* 9) Stars (single element, many shadows for perf) */
-.starry-sky{
+.starry-sky {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
 }
-.starry-sky::before{
-  content:"";
-  position:absolute; inset:0;
+
+.starry-sky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: radial-gradient(1px 1px at 10% 20%, #ffffffb7 50%, transparent 51%),
-              radial-gradient(1px 1px at 80% 30%, #ffffffb0 50%, transparent 51%),
-              radial-gradient(1px 1px at 30% 70%, #ffffffa6 50%, transparent 51%),
-              radial-gradient(1px 1px at 60% 80%, #ffffff9c 50%, transparent 51%);
-  opacity:.45;
+    radial-gradient(1px 1px at 80% 30%, #ffffffb0 50%, transparent 51%),
+    radial-gradient(1px 1px at 30% 70%, #ffffffa6 50%, transparent 51%),
+    radial-gradient(1px 1px at 60% 80%, #ffffff9c 50%, transparent 51%);
+  opacity: .45;
   animation: twinkle 6s ease-in-out infinite alternate;
 }
 
 /* 10) Responsive */
-@media (max-width: 768px){
-  .title{ font-size: var(--step-2); margin-bottom: var(--space-3); }
-  .story-text{ font-size: var(--step-1); }
-  .navigation{ bottom: 14px; gap: .5rem; }
+@media (max-width: 768px) {
+  .title {
+    font-size: var(--step-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .story-text {
+    font-size: var(--step-1);
+  }
+
+  .navigation {
+    bottom: 14px;
+    gap: .5rem;
+  }
 }
 
 /* 11) Motion preferences */
-@media (prefers-reduced-motion: reduce){
-  html { scroll-behavior: auto; }
-  .title, body::before, .starry-sky::before { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .title,
+  body::before,
+  .starry-sky::before {
+    animation: none !important;
+  }
 }
 
 /* 12) Keyframes */
-@keyframes titleShimmer{
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+@keyframes titleShimmer {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
-@keyframes auroraDrift{
-  0%   { transform: translateY(-2%) rotate(0.5deg) scale(1.02); opacity:.30; }
-  100% { transform: translateY(2%)  rotate(-0.5deg) scale(1.04); opacity:.40; }
+@keyframes auroraDrift {
+  0% {
+    transform: translateY(-2%) rotate(0.5deg) scale(1.02);
+    opacity: .30;
+  }
+
+  100% {
+    transform: translateY(2%) rotate(-0.5deg) scale(1.04);
+    opacity: .40;
+  }
 }
 
-@keyframes twinkle{
-  0%{ opacity:.3; filter: drop-shadow(0 0 0 transparent);}
-  100%{ opacity:1; filter: drop-shadow(0 0 6px #cde8ff75);}
+@keyframes twinkle {
+  0% {
+    opacity: .3;
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px #cde8ff75);
+  }
 }
 
 /* Top centered circle badge */
 .top-center-badge {
   text-align: center;
-  margin-top: 16px; /* spacing from top */
+  margin-top: 16px;
+  /* spacing from top */
 }
 
 .top-center-badge img {
-  height: 256px;      /* size of the circle */
-  width: 256px;       /* keep it square for circle */
+  height: 256px;
+  /* size of the circle */
+  width: 256px;
+  /* keep it square for circle */
   border-radius: 50%;
-  object-fit: cover; /* crops/fits inside circle */
+  object-fit: cover;
+  /* crops/fits inside circle */
   display: inline-block;
-  border: 3px solid white;   /* optional border */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35); /* optional shadow */
+  border: 3px solid white;
+  /* optional border */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  /* optional shadow */
 }
 
 
 
 /* Chapter subtitle */
-.subtitle{
+.subtitle {
   padding-top: 30px;
   margin: 0 0 var(--space-3);
   font-size: var(--step-1);
   line-height: var(--lh-tight);
   text-align: center;
-  color: #fff;            /* white, as requested */
-  opacity: .92;           /* a touch softer against the dark bg */
+  color: #fff;
+  /* white, as requested */
+  opacity: .92;
+  /* a touch softer against the dark bg */
   letter-spacing: .3px;
   text-wrap: balance;
 }
 
-.subtitle-brand{
+.subtitle-brand {
   font-weight: 700;
   /* subtle glow to make the team name pop */
-  text-shadow: 0 0 12px rgba(96,245,181,.25);
+  text-shadow: 0 0 12px rgba(96, 245, 181, .25);
 }
 
 /* Tighter spacing between subtitle and title on small screens */
-@media (max-width: 768px){
-  .story-image{  width: 100%;}
-  .subtitle{ margin-bottom: var(--space-1); }
+@media (max-width: 768px) {
+  .story-image {
+    width: 100%;
+  }
+
+  .subtitle {
+    margin-bottom: var(--space-1);
+  }
 }
 
-.lang-switch{
+.lang-switch {
   position: fixed;
   top: calc(14px + env(safe-area-inset-top));
   right: calc(14px + env(safe-area-inset-right));
@@ -383,54 +472,67 @@ body::before{
 
   /* ↑ tamaño */
   padding: var(--lang-pad-y) var(--lang-pad-x);
-  min-width: 44px;           /* target accesible */
-  min-height: 44px;          /* target accesible */
+  min-width: 44px;
+  /* target accesible */
+  min-height: 44px;
+  /* target accesible */
   font: 600 var(--lang-fs)/1 Inter, system-ui, sans-serif;
 
   border-radius: 999px;
-  border: 1.5px solid rgba(255,255,255,.18);
-  background: rgba(0,0,0,.35);
+  border: 1.5px solid rgba(255, 255, 255, .18);
+  background: rgba(0, 0, 0, .35);
   color: #eaf2ff;
   backdrop-filter: blur(6px);
   cursor: pointer;
 }
-.lang-switch:hover{ background: rgba(0,0,0,.5); }
-.lang-switch:focus-visible{
+
+.lang-switch:hover {
+  background: rgba(0, 0, 0, .5);
+}
+
+.lang-switch:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--aurora-amber) 40%, transparent);
 }
 
 /* Cada capítulo no se renderiza hasta entrar en viewport */
-.chapter{
+.chapter {
   content-visibility: auto;
   /* Altura estimada para reservar espacio y evitar saltos de layout */
-  contain-intrinsic-size: 1000px 1600px; /* ajustá si cada cap. es más alto */
+  contain-intrinsic-size: 1000px 1600px;
+  /* ajustá si cada cap. es más alto */
 }
 
 /* Imágenes grandes: reservar tamaño y evitar repaints costosos */
-.story-image{
+.story-image {
   max-width: min(100%, 960px);
   height: auto;
   /* Si tenés ratio común, ayuda al UA a reservar: */
 }
 
 /* Animaciones más suaves y baratas cuando el usuario lo pide */
-@media (prefers-reduced-motion: reduce){
-  *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
 }
 
-.stars-container{
+.stars-container {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;          /* contenido encima debe tener z>0 si hace falta */
+  z-index: 0;
+  /* contenido encima debe tener z>0 si hace falta */
   overflow: hidden;
 }
 
 /* Estrella base */
-.star{
+.star {
   position: absolute;
-  width: 2px; height: 2px;
+  width: 2px;
+  height: 2px;
   background: #fff;
   border-radius: 50%;
   opacity: .5;
@@ -439,35 +541,51 @@ body::before{
 }
 
 /* Brillo sutil */
-.star::after{
+.star::after {
   content: "";
-  position: absolute; inset: -4px;
+  position: absolute;
+  inset: -4px;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(255,255,255,.4);
+  box-shadow: 0 0 8px rgba(255, 255, 255, .4);
 }
 
 /* Parpadeo */
-@keyframes twinkle{
-  0%,100%{ opacity:.25; transform: scale(.9); }
-  50%    { opacity:.95; transform: scale(1); }
+@keyframes twinkle {
+
+  0%,
+  100% {
+    opacity: .25;
+    transform: scale(.9);
+  }
+
+  50% {
+    opacity: .95;
+    transform: scale(1);
+  }
 }
 
 /* Si el usuario pide menos movimiento, mantené estrellas estáticas */
-@media (prefers-reduced-motion: reduce){
-  .star{ animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .star {
+    animation: none;
+  }
 }
 
 
 /* Tokens para navegación */
-:root{
-  --nav-size: 4.2rem;     /* desktop ≈ 67px */
+:root {
+  --nav-size: 4.2rem;
+  /* desktop ≈ 67px */
   --nav-font: var(--step--1);
   --nav-gap: .8rem;
   --nav-pad: 1rem;
 }
 
-.navigation{ gap: var(--nav-gap); }
-.nav-btn{
+.navigation {
+  gap: var(--nav-gap);
+}
+
+.nav-btn {
   min-width: var(--nav-size);
   height: var(--nav-size);
   padding-inline: var(--nav-pad);
@@ -475,28 +593,37 @@ body::before{
 }
 
 /* Compactar en mobile */
-@media (max-width: 768px){
-  :root{
-    --nav-size: 3.2rem;  /* ≈ 51px */
+@media (max-width: 768px) {
+  :root {
+    --nav-size: 3.2rem;
+    /* ≈ 51px */
     --nav-font: 1rem;
     --nav-gap: .5rem;
     --nav-pad: .7rem;
   }
-  .navigation{ bottom: 14px; }
+
+  .navigation {
+    bottom: 14px;
+  }
 }
 
 /* Muy chico (teléfonos angostos) */
-@media (max-width: 420px){
-  :root{
-    --nav-size: 2.75rem; /* ≈ 44px, still touch-friendly */
+@media (max-width: 420px) {
+  :root {
+    --nav-size: 2.75rem;
+    /* ≈ 44px, still touch-friendly */
     --nav-font: .95rem;
     --nav-gap: .4rem;
     --nav-pad: .55rem;
   }
-  .navigation{ bottom: 10px; }
+
+  .navigation {
+    bottom: 10px;
+  }
 }
-@media (pointer: coarse){
-  :root{
+
+@media (pointer: coarse) {
+  :root {
     --lang-fs: 24px;
     --lang-pad-y: .55rem;
     --lang-pad-x: 1.2rem;
@@ -506,45 +633,58 @@ body::before{
 
 
 /* 1) Nada de padding extra: ya no es fijo */
-body{ padding-bottom: 0; }
+body {
+  padding-bottom: 0;
+}
 
 /* 2) Footer en flujo, pero con z-index alto */
-body > .site-credits{
-  position: relative;               /* scrollea con el contenido */
-  z-index: 2147483646;              /* por encima del nav */
-  margin-top: 3rem;                 /* tu margen original */
+body>.site-credits {
+  position: relative;
+  /* scrollea con el contenido */
+  z-index: 2147483646;
+  /* por encima del nav */
+  margin-top: 3rem;
+  /* tu margen original */
   padding: 2rem 1.25rem;
   text-align: center;
   font-size: clamp(1.2rem, .95rem + .2vw, 1rem);
   color: var(--ink-dim, #b9c6e4);
   background: color-mix(in srgb, var(--bg-1, #0a0f28) 85%, transparent);
-  border-top: 1px solid rgba(255,255,255,.12);
+  border-top: 1px solid rgba(255, 255, 255, .12);
   backdrop-filter: blur(2px);
 }
-.site-credits a{ color: inherit; text-decoration: underline dotted; }
+
+.site-credits a {
+  color: inherit;
+  text-decoration: underline dotted;
+}
 
 
 /* Evita que el nav fijo cubra el final en pantallas chicas */
-@media (max-width: 768px){
-  body{
-    padding-bottom: calc(var(--nav-size) + 28px); /* crea “piso” bajo */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: calc(var(--nav-size) + 28px);
+    /* crea “piso” bajo */
   }
+
   /* Si llegás al footer con anchors/scrollIntoView, que frene antes del nav */
-  .site-credits{
+  .site-credits {
     scroll-margin-bottom: calc(var(--nav-size) + 28px);
   }
 }
 
 /* Asegurá que el footer pinte por arriba si se superponen capas */
-body > .site-credits{
+body>.site-credits {
   position: relative;
-  z-index: 1001;           /* > .navigation (100) */
-  transform: translateZ(0);/* capa propia: arregla móviles con backdrop-filter */
+  z-index: 1001;
+  /* > .navigation (100) */
+  transform: translateZ(0);
+  /* capa propia: arregla móviles con backdrop-filter */
 }
 
 
 
-:root{
+:root {
   --lang-fs: clamp(15px, 0.9rem + 0.2vw, 18px);
   --lang-pad-y: .65rem;
   --lang-pad-x: 1rem;
