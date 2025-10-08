@@ -495,12 +495,10 @@ body::before {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--aurora-amber) 40%, transparent);
 }
 
-/* Cada capítulo no se renderiza hasta entrar en viewport */
+/* Cada capítulo - removiendo content-visibility para evitar saltos */
 .chapter {
-  content-visibility: auto;
-  /* Altura estimada para reservar espacio y evitar saltos de layout */
-  contain-intrinsic-size: 1000px 1600px;
-  /* ajustá si cada cap. es más alto */
+  /* Removed content-visibility: auto to prevent layout shifts */
+  /* contain-intrinsic-size: 1000px 1600px; */
 }
 
 /* Imágenes grandes: reservar tamaño y evitar repaints costosos */
